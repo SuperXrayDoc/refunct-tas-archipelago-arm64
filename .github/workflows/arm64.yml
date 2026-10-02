@@ -1,0 +1,25 @@
+name: build-arm64
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config nasm \
+            libx11-dev libxkbcommon-dev libwayland-dev libasound2-dev \
+            libudev-dev libssl-dev
+      - name: Toolchain
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - name: Build tool
+        run: |
+          cd tool
+          cargo build --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: refunct-tas-arm64
+          path: target/release/refunct-tas
